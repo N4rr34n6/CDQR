@@ -12,7 +12,7 @@ modes = {
 }
 ###############################################################################
 # Created by: Alan Orlikoski
-cdqr_version = "CDQR Version: 4.1.6"
+cdqr_version = "CDQR Version: 4.1.7"
 #
 ###############################################################################
 # Global Variables
@@ -1489,7 +1489,30 @@ def unzip_files(dst_loc,src_loc):
     print("All files extracted to folder: "+src_loc)
     return src_loc
 
+
+
+####################### Argparse Functions #######################
+# Add all ElasticSearch Parser Options
+def add_es_parsers(subparsers):
+    es_parsers = subparsers.add_parser('es',
+                                        help="ElasticSearch Commands. Use 'cdqr es -h' to see all options")
+    group = es_parsers.add_mutually_exclusive_group(required=False)
+    group.add_argument('--ts',
+                        nargs=1,
+                        metavar="index_name",
+                        help="The index name to use in ElasticSearch and TimeSketch")
+    group.add_argument('--kb',
+                        nargs=1,
+                        metavar="index_name",
+                        help="The index name to use in ElasticSearch. Example: case_cdqr-<index name>")
+
+    group.add_argument('--list',
+                        action='store_true',
+                        help="Lists the current ES indices and their status")
+
 ####################### END FUNCTIONS ############################
+
+
 
 ##################  EXECTUTION SECTION ############################
 def main():
@@ -1508,19 +1531,32 @@ def main():
         psort_location = r"psort.py"
 
     # Parsing begins
+    parser = argparse.ArgumentParser(description='Cold Disk Quick Response Tool (CDQR)')
+    subparsers = parser.add_subparsers(help='Automation Options', dest='auto_type')
+    add_es_parsers(subparsers)
+    add_ts_parsers(subparsers)
+#    add_os_parsers(subparsers)
+    add_dp_parsers(subparsers)
+    parser.add_argument('-v','--version',
+                        action='version',
+                        version=version)
+    args=parser.parse_args()
     parser_list = ["win","lin","mac","datt"]
 
     parser = argparse.ArgumentParser(description='Cold Disk Quick Response Tool (CDQR)')
+    subparsers = parser.add_subparsers(help='CDQR Options', dest='auto_type')
+    add_es_parsers(subparsers)
+    add_proc_parsers(subparsers)
     parser.add_argument('src_location',nargs=1,help='Source File location: Y:/Case/Tag009/sample.E01')
     parser.add_argument('dst_location',nargs='?',default='Results',help='Destination Folder location. If nothing is supplied then the default is \'Results\'')
     parser.add_argument('-p','--parser', nargs=1,help='Choose parser to use.  If nothing chosen then \'win\' is used.  The parsing options are: '+', '.join(parser_list))
     parser.add_argument('--nohash', action='store_true', default=False, help='Do not hash all the files as part of the processing of the image')
     parser.add_argument('--max_cpu', action='store_true', default=False, help='Use the maximum number of cpu cores to process the image')
-    parser.add_argument('--export', action='store_true' , help='Creates zipped, line delimited json export file')
     parser.add_argument('--es_kb', nargs=1,help='Outputs Kibana format to local elasticsearch database. Requires index name. Example: \'--es_kb my_index\'')
     parser.add_argument('--es_ts', nargs=1,help='Outputs TimeSketch format to local elasticsearch database. Requires index/timesketch name. Example: \'--es_ts my_name\'')
     parser.add_argument('--plaso_db', action='store_true', default=False,help='Process an existing Plaso DB file. Example: artifacts.plaso')
     parser.add_argument('-z',action='store_true', default=False, help='Indicates the input file is a zip file and needs to be decompressed')
+    parser.add_arguement('-z',action='store_true', default=False, help='Indicates the input file is a zip file and needs to be decompressed')
     parser.add_argument('-v','--version', action='version', version=cdqr_version)
 
     args=parser.parse_args()
