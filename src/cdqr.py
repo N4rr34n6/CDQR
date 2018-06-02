@@ -1492,10 +1492,25 @@ def unzip_files(dst_loc,src_loc):
 
 
 ####################### Argparse Functions #######################
-# Add all ElasticSearch Parser Options
-def add_es_parsers(subparsers):
-    es_parsers = subparsers.add_parser('es',
-                                        help="ElasticSearch Commands. Use 'cdqr es -h' to see all options")
+# Add all Kibana Parser Options
+def add_kibana_parsers(subparsers):
+    es_parsers = subparsers.add_parser('kibana',
+                                        help="Kibana Commands. Use 'cdqr kibana -h' to see all options")
+    group = es_parsers.add_group(required=True)
+    group.add_argument( nargs=1,
+                        metavar="index_name",
+                        help="The index name to use in ElasticSearch ")
+    group.add_argument('--server',
+                        nargs=?,
+                        metavar="server")
+    group.add_argument('--port',
+                        action='port',
+                        help="Port to use")
+
+# Add all TimeSketch Parser Options
+def add_timesketch_parsers(subparsers):
+    es_parsers = subparsers.add_parser('timesketch',
+                                        help="TimeSketch Commands. Use 'cdqr timesketch -h' to see all options")
     group = es_parsers.add_mutually_exclusive_group(required=False)
     group.add_argument('--ts',
                         nargs=1,
@@ -1506,9 +1521,10 @@ def add_es_parsers(subparsers):
                         metavar="index_name",
                         help="The index name to use in ElasticSearch. Example: case_cdqr-<index name>")
 
-    group.add_argument('--list',
+    group.add_argument('--rs',
                         action='store_true',
-                        help="Lists the current ES indices and their status")
+                        help="IP address or routable hostname of ")
+
 
 ####################### END FUNCTIONS ############################
 
